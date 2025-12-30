@@ -7,274 +7,216 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A Java Swing application that replicates the "SIGN UP" form layout
- * shown in the provided screenshot, using GridBagLayout for flexible positioning.
+ * A Java Swing application that replicates Facebook-style sign up form
+ * with fields: First Name, Last Name, Mobile/Email, Password, and Birthdate (MM:DD:YYYY)
  */
 public class SignupForm extends JFrame {
 
-    // Define colors for a cleaner, modern look
-    private static final Color PRIMARY_BLUE = new Color(0, 123, 255);
-    private static final Color SECONDARY_GREY = new Color(235, 235, 235);
-    private static final Color BUTTON_HOVER_GREY = new Color(220, 220, 220);
-    private static final Font LABEL_FONT = new Font("Segoe UI", Font.BOLD, 12);
-    private static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 24);
+    // Define colors for Facebook-like design
+    private static final Color PRIMARY_BLUE = new Color(59, 89, 152);
+    private static final Color SECONDARY_GREY = new Color(245, 245, 245);
+    private static final Color TEXT_COLOR = new Color(50, 50, 50);
+    private static final Color BORDER_COLOR = new Color(200, 200, 200);
+    private static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 32);
+    private static final Font SUBTITLE_FONT = new Font("Segoe UI", Font.PLAIN, 15);
+    private static final Font INPUT_FONT = new Font("Segoe UI", Font.PLAIN, 12);
+    private static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 16);
     
-    // Fields to be accessed by the validation method
-    private JComboBox<String> titleCombo;
-    private final JTextField lastNameField;
-    private JTextField middleNameField;
-    private final JTextField firstNameField;
-    private JTextField birthdateField;
-    private JTextField emailField;
+    // Form fields
+    private JTextField firstNameField;
+    private JTextField lastNameField;
+    private JTextField mobileEmailField;
     private JPasswordField passwordField;
-    private JCheckBox termsCheck;
+    private JComboBox<String> monthCombo;
+    private JComboBox<String> dayCombo;
+    private JComboBox<String> yearCombo;
 
     // Map to hold references to text components for easy validation
     private final Map<String, JComponent> formFields = new HashMap<>();
 
     public SignupForm() {
         // --- 1. Frame Setup ---
-        setTitle("Barangay Health Center - Sign Up");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Use DISPOSE_ON_CLOSE
-        setMinimumSize(new Dimension(600, 800)); // Adjusted for a narrower, taller layout
+        setTitle("Sign Up - Health Center");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setSize(new Dimension(500, 750));
+        setResizable(false);
 
-        // Use a main panel with GridBagLayout for flexible, complex layout
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
-        mainPanel.setBackground(Color.WHITE);
+        // Main container with background color
+        JPanel mainContainer = new JPanel();
+        mainContainer.setBackground(Color.WHITE);
+        mainContainer.setLayout(new BorderLayout());
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 5, 10, 5); // Padding around components
+        // Content panel with white background
+        JPanel contentPanel = new JPanel();
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(40, 30, 40, 30));
 
-        // --- 2. Title Section (SIGN UP) ---
-
-        // Custom panel for the blue bar and text
-        JPanel headerPanel = new JPanel(new BorderLayout(10, 0));
-        headerPanel.setOpaque(false);
-
-        // Blue vertical bar (mimicking the design element)
-        JPanel blueBar = new JPanel();
-        blueBar.setPreferredSize(new Dimension(5, 30));
-        blueBar.setBackground(PRIMARY_BLUE);
-        headerPanel.add(blueBar, BorderLayout.WEST);
-
+        // --- 2. Header Section ---
         JLabel titleLabel = new JLabel("SIGN UP");
         titleLabel.setFont(TITLE_FONT);
-        headerPanel.add(titleLabel, BorderLayout.CENTER);
+        titleLabel.setForeground(TEXT_COLOR);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2; // Span 2 columns
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(headerPanel, gbc);
+        contentPanel.add(Box.createVerticalStrut(10));
+        contentPanel.add(titleLabel);
+        contentPanel.add(Box.createVerticalStrut(25));
 
-        // Reset width for subsequent rows
-        gbc.gridwidth = 1;
+        // --- 3. Name Fields Row (First Name and Last Name) ---
+        JLabel firstNameLabel = new JLabel("FIRST NAME");
+        firstNameLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        firstNameLabel.setForeground(TEXT_COLOR);
+        firstNameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(firstNameLabel);
+        contentPanel.add(Box.createVerticalStrut(3));
 
-        // --- 3. Name Fields (Title, Last Name, Middle Name, First Name, Suffix) ---
-        // Row 1: Title and First Name
-        String[] titles = {"Title", "Mr.", "Ms.", "Dr."};
-        titleCombo = new JComboBox<>(titles);
-        formFields.put("Title", titleCombo); // Store for validation
-        JPanel titlePanel = createInputPanel(titleCombo, "Title *");
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.5;
-        mainPanel.add(titlePanel, gbc);
+        JPanel nameRow = new JPanel(new GridLayout(1, 2, 10, 0));
+        nameRow.setOpaque(false);
+        nameRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        nameRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         firstNameField = new JTextField();
+        firstNameField.setFont(INPUT_FONT);
+        firstNameField.setBorder(createInputFieldBorder());
+        if (firstNameField instanceof PlaceholderTextField) {
+            ((PlaceholderTextField) firstNameField).setPlaceholder("First name");
+        }
         formFields.put("First Name", firstNameField);
-        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.5;
-        mainPanel.add(createInputPanel(firstNameField, "First Name *"), gbc);
-
-        // Row 2: Middle Name and Last Name
-        middleNameField = new JTextField();
-        formFields.put("Middle Name", middleNameField);
-        gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0.5;
-        mainPanel.add(createInputPanel(middleNameField, "Middle Name *"), gbc);
+        nameRow.add(firstNameField);
 
         lastNameField = new JTextField();
+        lastNameField.setFont(INPUT_FONT);
+        lastNameField.setBorder(createInputFieldBorder());
+        if (lastNameField instanceof PlaceholderTextField) {
+            ((PlaceholderTextField) lastNameField).setPlaceholder("Last name");
+        }
         formFields.put("Last Name", lastNameField);
-        gbc.gridx = 1; gbc.gridy = 2; gbc.weightx = 0.5;
-        mainPanel.add(createInputPanel(lastNameField, "Last Name *"), gbc);
+        nameRow.add(lastNameField);
 
-        // Add note for Middle Name
-        gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0.5;
-        gbc.insets = new Insets(-5, 5, 0, 5); // Move up closer to the field
-        JLabel middleNameNote = new JLabel("* If no Middle Name, write dash (-)");
-        middleNameNote.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        middleNameNote.setForeground(Color.GRAY);
-        mainPanel.add(middleNameNote, gbc);
+        contentPanel.add(nameRow);
+        contentPanel.add(Box.createVerticalStrut(10));
 
-        // Row 3: Suffix
-        gbc.gridx = 0; gbc.gridy = 4; gbc.weightx = 0.5;
-        gbc.insets = new Insets(10, 5, 10, 5); // Reset padding
-        mainPanel.add(createInputField("Suffix"), gbc);
+        // Add label for Last Name
+        JLabel lastNameLabel = new JLabel("LAST NAME");
+        lastNameLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lastNameLabel.setForeground(TEXT_COLOR);
+        lastNameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        // Note: Last Name is already in the row with First Name, so we position it differently
 
+        // --- 4. Mobile Number or Email Field ---
+        JLabel mobileEmailLabel = new JLabel("MOBILE NUMBER OR EMAIL");
+        mobileEmailLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        mobileEmailLabel.setForeground(TEXT_COLOR);
+        mobileEmailLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(mobileEmailLabel);
+        contentPanel.add(Box.createVerticalStrut(3));
 
-        // --- 4. Date/Age/Gender Fields ---
+        mobileEmailField = new JTextField();
+        mobileEmailField.setFont(INPUT_FONT);
+        mobileEmailField.setBorder(createInputFieldBorder());
+        if (mobileEmailField instanceof PlaceholderTextField) {
+            ((PlaceholderTextField) mobileEmailField).setPlaceholder("Mobile number or email");
+        }
+        mobileEmailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        mobileEmailField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        formFields.put("Mobile/Email", mobileEmailField);
+        contentPanel.add(mobileEmailField);
+        contentPanel.add(Box.createVerticalStrut(10));
 
-        // Row 4: Birthdate
-        birthdateField = new JTextField();
-        formFields.put("Birthdate", birthdateField);
-        JButton calendarButton = new JButton("📅"); // Placeholder for calendar icon
-        calendarButton.setFocusPainted(false);
-        calendarButton.setBackground(Color.WHITE);
-        calendarButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        // Add action listener for calendar button if needed
+        // --- 5. Password Field ---
+        JLabel passwordLabel = new JLabel("PASSWORD");
+        passwordLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        passwordLabel.setForeground(TEXT_COLOR);
+        passwordLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(passwordLabel);
+        contentPanel.add(Box.createVerticalStrut(3));
 
-        JPanel birthdateInput = new JPanel(new BorderLayout());
-        birthdateInput.add(birthdateField, BorderLayout.CENTER);
-        birthdateInput.add(calendarButton, BorderLayout.EAST);
-
-        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 1; gbc.weightx = 0.5;
-        mainPanel.add(createInputPanel(birthdateInput, "Birthdate *"), gbc);
-
-        // Row 4: Age (Not required, no need to store)
-        gbc.gridx = 1; gbc.gridy = 5; gbc.gridwidth = 1; gbc.weightx = 0.5;
-        mainPanel.add(createInputField("Age"), gbc);
-
-        // Row 5: Gender
-        JPanel genderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
-        genderPanel.setOpaque(false);
-
-        JRadioButton maleRadio = new JRadioButton("Male");
-        JRadioButton femaleRadio = new JRadioButton("Female");
-        maleRadio.setOpaque(false);
-        femaleRadio.setOpaque(false);
-
-        ButtonGroup genderGroup = new ButtonGroup();
-        genderGroup.add(maleRadio);
-        genderGroup.add(femaleRadio);
-
-        genderPanel.add(maleRadio);
-        genderPanel.add(femaleRadio);
-
-        // Create a styled border area for the Gender selection to mimic the input style
-        JPanel genderContainer = new JPanel(new BorderLayout());
-        genderContainer.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-            "Gender", // Placeholder Title
-            0,
-            0,
-            LABEL_FONT.deriveFont(Font.PLAIN),
-            Color.DARK_GRAY
-        ));
-        genderContainer.add(genderPanel, BorderLayout.CENTER);
-
-        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 2; gbc.weightx = 1.0;
-        mainPanel.add(genderContainer, gbc);
-
-        // --- 5. Patient Account Section ---
-
-        // Label "Patient Account"
-        JLabel patientAccountLabel = new JLabel("Patient Account");
-        patientAccountLabel.setFont(LABEL_FONT.deriveFont(Font.BOLD, 16f));
-        patientAccountLabel.setForeground(PRIMARY_BLUE.darker());
-        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 5; gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(20, 5, 10, 5); // Extra space above
-        mainPanel.add(patientAccountLabel, gbc);
-        gbc.insets = new Insets(10, 5, 10, 5); // Reset
-
-        // Row 3: Email
-        emailField = new JTextField();
-        formFields.put("Email", emailField); // Store for validation
-        gbc.gridx = 0; gbc.gridy = 8; gbc.gridwidth = 2; gbc.weightx = 1.0;
-        mainPanel.add(createInputPanel(emailField, "Email *"), gbc); // Use helper
-
-        // Row 3: Password
-        passwordField = new JPasswordField(); // Keep as JPasswordField
+        passwordField = new JPasswordField();
+        passwordField.setFont(INPUT_FONT);
+        passwordField.setBorder(createInputFieldBorder());
+        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        passwordField.setAlignmentX(Component.LEFT_ALIGNMENT);
         formFields.put("Password", passwordField);
-        passwordField.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        contentPanel.add(passwordField);
+        contentPanel.add(Box.createVerticalStrut(10));
 
-        JButton eyeButton = new JButton("👁"); // Placeholder for eye icon
-        eyeButton.setFocusPainted(false);
-        eyeButton.setBackground(Color.WHITE);
-        eyeButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        // --- 6. Birthdate Section (MM:DD:YYYY) ---
+        JLabel birthdateLabel = new JLabel("MM:DD:YYYY");
+        birthdateLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        birthdateLabel.setForeground(TEXT_COLOR);
+        birthdateLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(birthdateLabel);
+        contentPanel.add(Box.createVerticalStrut(3));
 
-        JPanel passwordInput = new JPanel(new BorderLayout());
-        passwordInput.add(passwordField, BorderLayout.CENTER);
-        passwordInput.add(eyeButton, BorderLayout.EAST);
+        // Birthdate combo boxes
+        JPanel birthdateRow = new JPanel(new GridLayout(1, 3, 8, 0));
+        birthdateRow.setOpaque(false);
+        birthdateRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        birthdateRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        gbc.gridx = 0; gbc.gridy = 9; gbc.gridwidth = 2; gbc.weightx = 1.0;
-        mainPanel.add(createInputPanel(passwordInput, "Password *"), gbc);
+        // Month combo
+        String[] months = {"MM", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        monthCombo = new JComboBox<>(months);
+        monthCombo.setFont(INPUT_FONT);
+        monthCombo.setBorder(createInputFieldBorder());
+        monthCombo.setBackground(Color.WHITE);
+        formFields.put("Month", monthCombo);
+        birthdateRow.add(monthCombo);
 
-        // Row 3: Contact Number (Required, but stored in a nested structure, so we access the inner field)
-        JTextField contactField = new JTextField(); // This is the actual field for input
-        formFields.put("Contact Number", contactField); // Store inner field for validation
-        JLabel prefixLabel = new JLabel("+63"); // Prefix as per the screenshot
-        prefixLabel.setFont(contactField.getFont());
-        prefixLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        // Day combo
+        String[] days = new String[32];
+        days[0] = "DD";
+        for (int i = 1; i <= 31; i++) {
+            days[i] = String.valueOf(i);
+        }
+        dayCombo = new JComboBox<>(days);
+        dayCombo.setFont(INPUT_FONT);
+        dayCombo.setBorder(createInputFieldBorder());
+        dayCombo.setBackground(Color.WHITE);
+        formFields.put("Day", dayCombo);
+        birthdateRow.add(dayCombo);
 
-        JPanel contactInput = new JPanel(new BorderLayout());
-        contactInput.add(prefixLabel, BorderLayout.WEST);
-        contactInput.add(contactField, BorderLayout.CENTER);
+        // Year combo
+        String[] years = new String[100];
+        years[0] = "YYYY";
+        int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+        for (int i = 1; i < 100; i++) {
+            years[i] = String.valueOf(currentYear - i + 1);
+        }
+        yearCombo = new JComboBox<>(years);
+        yearCombo.setFont(INPUT_FONT);
+        yearCombo.setBorder(createInputFieldBorder());
+        yearCombo.setBackground(Color.WHITE);
+        formFields.put("Year", yearCombo);
+        birthdateRow.add(yearCombo);
 
-        gbc.gridx = 0; gbc.gridy = 10; gbc.gridwidth = 2; gbc.weightx = 1.0;
-        // Add a small label for contact number title
-        JLabel contactTitle = new JLabel("Contact Number *");
-        contactTitle.setFont(LABEL_FONT.deriveFont(Font.PLAIN));
-        contactTitle.setForeground(Color.DARK_GRAY);
-        contactTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-
-        JPanel contactContainer = new JPanel(new BorderLayout());
-        contactContainer.setOpaque(false);
-        contactContainer.add(contactTitle, BorderLayout.NORTH);
-        contactContainer.add(createInputPanel(contactInput, null), BorderLayout.CENTER);
-        
-        mainPanel.add(contactContainer, gbc);
-
-        // --- 6. Terms and Conditions Checkbox ---
-
-        termsCheck = new JCheckBox("I agree to the ");
-        formFields.put("Terms Agreement", termsCheck); // Store for validation
-        termsCheck.setOpaque(false);
-        termsCheck.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-
-        // Create a fake link for Terms of Service and Privacy Policy
-        JLabel termsLink = new JLabel("<html><u>Terms of Service and Privacy Policy</u></html>");
-        termsLink.setForeground(PRIMARY_BLUE);
-        termsLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        JPanel termsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        termsPanel.setOpaque(false);
-        termsPanel.add(termsCheck);
-        termsPanel.add(termsLink);
-
-        gbc.gridx = 0; gbc.gridy = 11; gbc.gridwidth = 2; gbc.weightx = 1.0;
-        gbc.insets = new Insets(15, 5, 30, 5); // Padding around checkbox
-        mainPanel.add(termsPanel, gbc);
+        contentPanel.add(birthdateRow);
+        contentPanel.add(Box.createVerticalStrut(20));
 
         // --- 7. Sign Up Button ---
-
         JButton signUpButton = new JButton("Sign Up");
-        signUpButton.setFont(LABEL_FONT.deriveFont(Font.BOLD, 16f));
-        signUpButton.setForeground(Color.BLACK);
-        signUpButton.setBackground(SECONDARY_GREY);
+        signUpButton.setFont(BUTTON_FONT);
+        signUpButton.setForeground(Color.WHITE);
+        signUpButton.setBackground(PRIMARY_BLUE);
         signUpButton.setFocusPainted(false);
-        signUpButton.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        signUpButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         signUpButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Update action listener to perform validation
+        signUpButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        signUpButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         signUpButton.addActionListener(e -> handleSignUp());
-        
-        // Center the button in the remaining space
-        gbc.gridx = 0;
-        gbc.gridy = 12;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.weightx = 1.0;
-        gbc.insets = new Insets(10, 5, 10, 5);
-        mainPanel.add(signUpButton, gbc);
+        contentPanel.add(signUpButton);
 
         // --- 8. Back to Login Link ---
+        contentPanel.add(Box.createVerticalStrut(15));
         JPanel loginLinkPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         loginLinkPanel.setOpaque(false);
+        loginLinkPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel prompt = new JLabel("Already have an account?");
         prompt.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        prompt.setForeground(Color.GRAY);
+        prompt.setForeground(TEXT_COLOR);
 
-        JLabel loginLink = new JLabel("Log in");
+        JLabel loginLink = new JLabel("<html><u>Log in</u></html>");
         loginLink.setFont(new Font("Segoe UI", Font.BOLD, 12));
         loginLink.setForeground(PRIMARY_BLUE);
         loginLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -282,81 +224,89 @@ public class SignupForm extends JFrame {
         loginLink.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 new LoginScreen().setVisible(true);
-                dispose(); // Close the current signup form
+                dispose();
             }
         });
 
         loginLinkPanel.add(prompt);
         loginLinkPanel.add(loginLink);
+        contentPanel.add(loginLinkPanel);
 
-        gbc.gridy = 13; // Place it below the sign up button
-        mainPanel.add(loginLinkPanel, gbc);
+        // Add content panel to main container
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        mainContainer.add(scrollPane, BorderLayout.CENTER);
 
-        // Add main panel to frame
-        add(mainPanel);
-        pack(); // Pack components to their preferred size
-        setLocationRelativeTo(null); // Center the window
+        add(mainContainer);
+        setLocationRelativeTo(null);
+    }
+
+    /**
+     * Helper method to create a rounded border for input fields
+     */
+    private Border createInputFieldBorder() {
+        return BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 1),
+            BorderFactory.createEmptyBorder(8, 10, 8, 10)
+        );
     }
 
     /**
      * Checks all required form fields for emptiness or invalid states.
-     * Displays a JOptionPane warning for the first missing field found.
      * @return true if the form is valid, false otherwise.
      */
     private boolean validateForm() {
-        // Validation 1: Title selection (must not be the default "Title")
-        if (titleCombo.getSelectedIndex() == 0) {
-            // Updated message to match the requested generic format
+        // Validation 1: First Name
+        String firstName = firstNameField.getText().trim();
+        if (firstName.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
-                "The 'Title' field is required and cannot be empty.", 
-                "Required Field Missing", 
+                "Please enter your first name.", 
+                "Validation Error", 
                 JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
-        // Validation 2: Text fields
-        String[] requiredFields = {"Last Name", "First Name", "Birthdate", "Email", "Password", "Contact Number"};
-        
-        for (String fieldName : requiredFields) {
-            JComponent component = formFields.get(fieldName);
-            String value = "";
-            
-            if (component instanceof JTextField) {
-                value = ((JTextField) component).getText().trim();
-            } else if (component instanceof JPasswordField) {
-                value = new String(((JPasswordField) component).getPassword()).trim();
-            }
-
-            if (value.isEmpty()) {
-                JOptionPane.showMessageDialog(this, 
-                    "The '" + fieldName + "' field is required and cannot be empty.", 
-                    "Required Field Missing", 
-                    JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-        }
-        
-        // Validation 3: Middle Name specific check
-        // Check if Middle Name is empty and user did not input the required dash
-        String middleNameValue = middleNameField.getText().trim();
-        if (middleNameValue.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "The 'Middle Name' field is required. If you don't have one, please write a dash (-).",
-                "Required Field Missing", 
-                JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        
-        // Validation 4: Terms and Conditions
-        if (!termsCheck.isSelected()) {
+        // Validation 2: Last Name
+        String lastName = lastNameField.getText().trim();
+        if (lastName.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
-                "You must agree to the Terms of Service and Privacy Policy.", 
-                "Required Agreement Missing", 
+                "Please enter your last name.", 
+                "Validation Error", 
                 JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
-        return true; // All checks passed
+        // Validation 3: Mobile/Email
+        String mobileEmail = mobileEmailField.getText().trim();
+        if (mobileEmail.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "Please enter your mobile number or email.", 
+                "Validation Error", 
+                JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // Validation 4: Password
+        String password = new String(passwordField.getPassword()).trim();
+        if (password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "Please enter a password.", 
+                "Validation Error", 
+                JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // Validation 5: Birthdate (check that all fields are selected)
+        if (monthCombo.getSelectedIndex() == 0 || dayCombo.getSelectedIndex() == 0 || yearCombo.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(this, 
+                "Please enter your complete birthdate (MM:DD:YYYY).", 
+                "Validation Error", 
+                JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -364,16 +314,21 @@ public class SignupForm extends JFrame {
      */
     private void handleSignUp() {
         if (validateForm()) {
-            String email = emailField.getText().trim();
+            String email = mobileEmailField.getText().trim();
             String firstName = firstNameField.getText().trim();
             String lastName = lastNameField.getText().trim();
             String password = new String(passwordField.getPassword());
+            
+            String month = (String) monthCombo.getSelectedItem();
+            String day = (String) dayCombo.getSelectedItem();
+            String year = (String) yearCombo.getSelectedItem();
+            String birthdate = month + ":" + day + ":" + year;
 
             // Check if email already exists
             if (DatabaseHelper.emailExists(email)) {
                 JOptionPane.showMessageDialog(this, 
-                    "This email is already registered. Please use a different email or log in.", 
-                    "Email Already Exists", 
+                    "This email or mobile number is already registered. Please use a different one or log in.", 
+                    "Registration Error", 
                     JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -382,7 +337,7 @@ public class SignupForm extends JFrame {
             if (DatabaseHelper.registerUser(email, password, firstName, lastName)) {
                 JOptionPane.showMessageDialog(this, 
                     "Sign Up Successful! Please log in.", 
-                    "Registration Complete", 
+                    "Success", 
                     JOptionPane.INFORMATION_MESSAGE);
                 
                 new LoginScreen().setVisible(true);
@@ -396,54 +351,60 @@ public class SignupForm extends JFrame {
         }
     }
     
-    /**
-     * Helper function to create a text field wrapped in a panel with a titled border,
-     * mimicking a modern floating label input.
-     * @param labelText The text for the titled border (e.g., "Last Name *").
-     * @return A JPanel containing the JTextField.
-     */
-    private JPanel createInputField(String labelText) {
-        JTextField field = new JTextField();
-        // Since we are now manually tracking required fields, we don't rely on this generic method for tracking.
-        return createInputPanel(field, labelText);
-    }
-
-    /**
-     * Helper function to create a component wrapped in a panel with a titled border.
-     * @param component The JComponent to wrap (JTextField, JComboBox, etc.).
-     * @param labelText The text for the titled border (e.g., "Last Name *").
-     * @return A JPanel containing the component.
-     */
-    private JPanel createInputPanel(JComponent component, String labelText) {
-        JPanel panel = new JPanel(new BorderLayout());
-
-        // Remove default border from component for a cleaner look
-        if (component instanceof JTextField || component instanceof JPasswordField || component instanceof JComboBox) {
-             component.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        }
-        
-        // Apply a titled border to act as the label, unless labelText is null (used for Contact Number structure)
-        if (labelText != null) {
-            panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1, true), // Rounded grey border
-                labelText,
-                0, // Title justification (Left)
-                0, // Title position (Top)
-                LABEL_FONT.deriveFont(Font.PLAIN),
-                Color.DARK_GRAY // Label color
-            ));
-        }
-
-        panel.add(component, BorderLayout.CENTER);
-        panel.setPreferredSize(new Dimension(150, 55)); // Set preferred height
-        return panel;
-    }
-
     public static void main(String[] args) {
         // Use the event dispatch thread to build and display the GUI
         SwingUtilities.invokeLater(() -> {
             SignupForm form = new SignupForm();
-            form.setVisible(true); // The creator of the form should make it visible
+            form.setVisible(true);
         });
+    }
+}
+
+/**
+ * Custom JTextField class to support placeholder text
+ */
+class PlaceholderTextField extends JTextField {
+    private String placeholder;
+    private boolean placeholderShowing = false;
+
+    public PlaceholderTextField(int columns) {
+        super(columns);
+    }
+
+    public void setPlaceholder(String placeholder) {
+        this.placeholder = placeholder;
+        if (getText().isEmpty()) {
+            showPlaceholder();
+        }
+    }
+
+    private void showPlaceholder() {
+        if (placeholder != null) {
+            setText(placeholder);
+            setForeground(Color.GRAY);
+            placeholderShowing = true;
+        }
+    }
+
+    private void hidePlaceholder() {
+        if (placeholderShowing) {
+            setText("");
+            setForeground(Color.BLACK);
+            placeholderShowing = false;
+        }
+    }
+
+    @Override
+    protected void processFocusEvent(java.awt.event.FocusEvent e) {
+        if (e.getID() == java.awt.event.FocusEvent.FOCUS_GAINED) {
+            if (placeholderShowing) {
+                hidePlaceholder();
+            }
+        } else if (e.getID() == java.awt.event.FocusEvent.FOCUS_LOST) {
+            if (getText().isEmpty() && placeholder != null) {
+                showPlaceholder();
+            }
+        }
+        super.processFocusEvent(e);
     }
 }
